@@ -1,0 +1,57 @@
+name: Generación Automática de Semana en Notion
+
+# Ejecutar cada domingo a las 20:00 UTC
+on:
+  schedule:
+    - cron: '0 20 * * 0'  # Domingo 20:00 UTC
+  
+  # Permitir ejecución manual desde GitHub Actions UI
+  workflow_dispatch:
+
+jobs:
+  generate-week:
+    name: Generar Semana en Notion
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+      
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Instalar dependencias
+        run: npm ci
+      
+      - name: Crear directorio de logs
+        run: mkdir -p logs
+      
+      - name: Ejecutar generación de semana
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          TEMPLATE_DB_ID: ${{ secrets.TEMPLATE_DB_ID }}
+          CALENDAR_DB_ID: ${{ secrets.CALENDAR_DB_ID }}
+          LOG_LEVEL: info
+          TIMEZONE: America/Mexico_City
+        run: npm run generate-week
+      
+      - name: Subir logs como artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ github.run_number }}
+          path: logs/
+          retention-days: 7
+      
+      - name: Notificar éxito
+        if: success()
+        run: echo "✓ Semana generada exitosamente en Notion"
+      
+      - name: Notificar fallo
+        if: failure()
+        run: echo "✗ Error al generar la semana. Revisa los logs para más detalles."
+
+

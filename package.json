@@ -1,0 +1,32 @@
+{
+  "name": "auto-notion-scheduler",
+  "version": "1.0.0",
+  "description": "Automatización de planificación semanal en Notion con arquitectura modular y extensible",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "generate-week": "node src/jobs/generateWeek.js"
+  },
+  "keywords": [
+    "notion",
+    "automation",
+    "scheduler",
+    "calendar",
+    "planning"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "date-fns": "^3.0.6",
+    "dotenv": "^16.3.1",
+    "winston": "^3.11.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
+
+
