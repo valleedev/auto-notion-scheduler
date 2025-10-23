@@ -21,6 +21,7 @@
   "dependencies": {
     "@notionhq/client": "^2.2.15",
     "date-fns": "^3.0.6",
+    "date-fns-tz": "^3.2.0",
     "dotenv": "^16.3.1",
     "winston": "^3.11.0"
   },
@@ -28,5 +29,3 @@
     "node": ">=20.0.0"
   }
 }
-
-

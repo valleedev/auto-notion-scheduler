@@ -23,6 +23,7 @@ import {
   nextSaturday,
   nextSunday,
 } from 'date-fns';
+import { fromZonedTime, toZonedTime, formatInTimeZone } from 'date-fns-tz';
 
 /**
  * Mapa de días de la semana en español a funciones de date-fns
@@ -66,17 +67,22 @@ export function getNextWeekEnd(referenceDate = new Date()) {
  * Convierte un string de hora (HH:mm) a un objeto Date en un día específico
  * @param {Date} baseDate - Fecha base para el día
  * @param {string} timeString - Hora en formato "HH:mm" (ej: "05:00", "14:30")
- * @returns {Date} Fecha con la hora especificada
+ * @param {string} timezone - Zona horaria (opcional, por defecto America/Bogota)
+ * @returns {Date} Fecha con la hora especificada en la zona horaria correcta
  */
-export function parseTimeToDate(baseDate, timeString) {
+export function parseTimeToDate(baseDate, timeString, timezone = 'America/Bogota') {
   const [hours, minutes] = timeString.split(':').map(Number);
   
+  // Crear una nueva fecha basada en la fecha base
   let date = new Date(baseDate);
+  
+  // Establecer la hora directamente (sin conversiones de zona horaria)
   date = setHours(date, hours);
   date = setMinutes(date, minutes);
   date = setSeconds(date, 0);
   date = setMilliseconds(date, 0);
   
+  // Retornar la fecha con la hora especificada
   return date;
 }
 
@@ -148,6 +154,9 @@ export function getNextWeekDayDate(dayName) {
   const targetDate = new Date(nextWeekStart);
   targetDate.setDate(targetDate.getDate() + daysToAdd);
   
+  // Establecer la hora a medianoche (00:00) para evitar problemas de zona horaria
+  targetDate.setHours(0, 0, 0, 0);
+  
   return targetDate;
 }
 
@@ -162,15 +171,25 @@ export function formatForNotion(date) {
 
 /**
  * Crea un objeto de fecha compatible con Notion API
- * @param {Date} startDate - Fecha de inicio
- * @param {Date} endDate - Fecha de fin
+ * @param {Date} startDate - Fecha de inicio (en hora local)
+ * @param {Date} endDate - Fecha de fin (en hora local)
+ * @param {string} timezone - Zona horaria para Notion
  * @returns {Object} Objeto de fecha para Notion
  */
-export function createNotionDateObject(startDate, endDate) {
+export function createNotionDateObject(startDate, endDate, timezone = 'America/Bogota') {
+  // Notion interpreta las fechas ISO como UTC, así que necesitamos ajustar
+  // Si queremos 05:00 en Colombia (UTC-5), necesitamos enviar 05:00 UTC
+  // Pero como Notion lo interpreta como UTC, necesitamos restar 5 horas
+  const offsetHours = -5; // Colombia está 5 horas detrás de UTC
+  
+  // Crear fechas ajustadas para compensar la diferencia de zona horaria
+  const adjustedStart = new Date(startDate.getTime() + (offsetHours * 60 * 60 * 1000));
+  const adjustedEnd = new Date(endDate.getTime() + (offsetHours * 60 * 60 * 1000));
+  
   return {
-    start: formatForNotion(startDate),
-    end: formatForNotion(endDate),
-    time_zone: 'America/Mexico_City', // Puedes hacer esto configurable
+    start: formatForNotion(adjustedStart),
+    end: formatForNotion(adjustedEnd),
+    time_zone: timezone, // Especificar la zona horaria para Notion
   };
 }
 

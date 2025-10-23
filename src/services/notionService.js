@@ -6,6 +6,7 @@
 import { notionClient, databases } from '../config/notion.js';
 import { createLogger } from '../utils/logger.js';
 import { NotionError, processNotionError, retryOperation } from '../utils/errorHandler.js';
+import config from '../config/environment.js';
 
 const logger = createLogger('NotionService');
 
@@ -92,7 +93,7 @@ export async function createCalendarEvent(eventData) {
             date: {
               start: date.start,
               end: date.end,
-              time_zone: date.time_zone || 'America/Mexico_City',
+              time_zone: date.time_zone || config.timezone,
             },
           },
           Notes: {

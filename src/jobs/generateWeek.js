@@ -19,6 +19,7 @@ import {
   calculateEndDate,
   createNotionDateObject,
 } from '../utils/dateHelper.js';
+import config from '../config/environment.js';
 import { handleError } from '../utils/errorHandler.js';
 
 const logger = createLogger('GenerateWeek');
@@ -34,13 +35,13 @@ function transformTaskToEvent(task) {
     const dayDate = getNextWeekDayDate(task.day);
     
     // Parsear la hora y crear la fecha de inicio completa
-    const startDate = parseTimeToDate(dayDate, task.time);
+    const startDate = parseTimeToDate(dayDate, task.time, config.timezone);
     
     // Calcular la fecha de fin basada en la duración
     const endDate = calculateEndDate(startDate, task.duration);
     
     // Crear el objeto de fecha compatible con Notion
-    const notionDate = createNotionDateObject(startDate, endDate);
+    const notionDate = createNotionDateObject(startDate, endDate, config.timezone);
     
     return {
       name: task.name,
