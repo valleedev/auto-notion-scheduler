@@ -180,7 +180,7 @@ export function createNotionDateObject(startDate, endDate, timezone = 'America/B
   // Notion interpreta las fechas ISO como UTC, así que necesitamos ajustar
   // Si queremos 05:00 en Colombia (UTC-5), necesitamos enviar 05:00 UTC
   // Pero como Notion lo interpreta como UTC, necesitamos restar 5 horas
-  const offsetHours = 0; // Colombia está 5 horas detrás de UTC
+  const offsetHours = -1; // Colombia está 5 horas detrás de UTC
   
   // Crear fechas ajustadas para compensar la diferencia de zona horaria
   const adjustedStart = new Date(startDate.getTime() + (offsetHours * 60 * 60 * 1000));
