@@ -22,12 +22,23 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+          cache-dependency-path: package-lock.json
       
       - name: Instalar dependencias
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
       
       - name: Crear directorio de logs
         run: mkdir -p logs
+      
+      - name: Asegurar archivos de log
+        run: |
+          touch logs/combined.log
+          touch logs/error.log
       
       - name: Ejecutar generación de semana
         env:
@@ -44,6 +55,7 @@ jobs:
         with:
           name: logs-${{ github.run_number }}
           path: logs/
+          if-no-files-found: ignore
           retention-days: 7
       
       - name: Notificar éxito
