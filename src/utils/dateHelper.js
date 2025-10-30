@@ -23,7 +23,7 @@ import {
   nextSaturday,
   nextSunday,
 } from 'date-fns';
-import { fromZonedTime, toZonedTime, formatInTimeZone } from 'date-fns-tz';
+import { zonedTimeToUtc } from 'date-fns-tz';
 
 /**
  * Mapa de días de la semana en español a funciones de date-fns
@@ -177,19 +177,14 @@ export function formatForNotion(date) {
  * @returns {Object} Objeto de fecha para Notion
  */
 export function createNotionDateObject(startDate, endDate, timezone = 'America/Bogota') {
-  // Notion interpreta las fechas ISO como UTC, así que necesitamos ajustar
-  // Si queremos 05:00 en Colombia (UTC-5), necesitamos enviar 05:00 UTC
-  // Pero como Notion lo interpreta como UTC, necesitamos restar 5 horas
-  const offsetHours = -5; // Colombia está 5 horas detrás de UTC
-  
-  // Crear fechas ajustadas para compensar la diferencia de zona horaria
-  const adjustedStart = new Date(startDate.getTime() + (offsetHours * 60 * 60 * 1000));
-  const adjustedEnd = new Date(endDate.getTime() + (offsetHours * 60 * 60 * 1000));
-  
+  // Convertir las fechas que representan hora local en la zona especificada a UTC real
+  const startUtc = zonedTimeToUtc(startDate, timezone);
+  const endUtc = zonedTimeToUtc(endDate, timezone);
+
   return {
-    start: formatForNotion(adjustedStart),
-    end: formatForNotion(adjustedEnd),
-    time_zone: timezone, // Especificar la zona horaria para Notion
+    start: formatForNotion(startUtc),
+    end: formatForNotion(endUtc),
+    time_zone: timezone,
   };
 }
 
